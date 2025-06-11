@@ -1,0 +1,21 @@
+# Node modules
+node_modules/
+
+# Vite / React / Build
+dist/
+build/
+.cache/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.production
+.env.development
+
+# Editor/IDE
+.vscode/
+.idea/
