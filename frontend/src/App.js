@@ -6,34 +6,19 @@ import {
   Typography,
   Box,
   Alert,
-  AppBar,
-  Toolbar,
-  Tab,
-  Tabs,
   Fade,
-  useMediaQuery,
-  BottomNavigation,
-  BottomNavigationAction
+  useMediaQuery
 } from '@mui/material';
-import { DirectionsBike, ContactMail } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
-import Contact from './components/Contact';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-function a11yProps(index) {
-  return {
-    id: `nav-tab-${index}`,
-    'aria-controls': `nav-tabpanel-${index}`,
-  };
-}
-
-const accentColor = 'rgba(0, 180, 200, 0.85)'; // Passe ggf. an dein Bild an
+const accentColor = 'rgba(0, 180, 200, 0.85)';
 
 function App() {
   const [model, setModel] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-  const [currentTab, setCurrentTab] = useState(0);
   const [zoom, setZoom] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -54,8 +39,9 @@ function App() {
     }
   };
 
-  const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
+  const handleInputChange = (e) => {
+    setModel(e.target.value);
+    setResult(null);
   };
 
   return (
@@ -73,220 +59,155 @@ function App() {
         <Box
           sx={{
             minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            pt: { xs: '18vh', sm: '20vh' },
             transform: zoom ? 'scale(1.08)' : 'scale(1)',
             transition: 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)',
             backdropFilter: 'blur(2px)',
             pb: isMobile ? 7 : 0,
           }}
         >
-          {/* Responsive Navigation */}
-          {!isMobile ? (
-            <AppBar
-              position="static"
-              elevation={0}
+          <Container maxWidth="sm" sx={{ my: 0 }}>
+            <Box
               sx={{
-                background: 'rgba(20, 30, 40, 0.7)',
-                borderRadius: '0 0 32px 32px',
+                borderRadius: { xs: 3, sm: 6 },
                 boxShadow: 'none',
-                m: 2,
-                mx: { xs: 0, sm: 4 },
-                px: 2,
+                background: 'rgba(30, 40, 60, 0.82)',
+                p: { xs: 2, sm: 5 },
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 2.5,
+                backdropFilter: 'blur(6px)',
+                border: 'none',
               }}
             >
-              <Toolbar sx={{ minHeight: 64 }}>
-                <DirectionsBike sx={{ fontSize: 32, mr: 1, color: accentColor }} />
-                <Typography
-                  variant="h5"
-                  component="div"
-                  sx={{ flexGrow: 1, fontWeight: 700, letterSpacing: 2, color: accentColor }}
-                >
-                  64 Engineering
-                </Typography>
-                <Tabs
-                  value={currentTab}
-                  onChange={handleTabChange}
-                  textColor="inherit"
-                  TabIndicatorProps={{ style: { background: accentColor, height: 4, borderRadius: 2 } }}
-                  sx={{
-                    '.MuiTab-root': {
-                      borderRadius: 2,
-                      minWidth: 120,
-                      color: '#fff',
-                      fontWeight: 600,
-                      mx: 0.5,
-                      transition: 'background 0.3s',
-                    },
-                    '.Mui-selected': {
-                      background: accentColor,
-                      color: '#fff',
-                    },
-                  }}
-                >
-                  <Tab icon={<DirectionsBike />} label="Tuning-Check" {...a11yProps(0)} />
-                  <Tab icon={<ContactMail />} label="Kontakt" {...a11yProps(1)} />
-                </Tabs>
-              </Toolbar>
-            </AppBar>
-          ) : (
-            <BottomNavigation
-              showLabels
-              value={currentTab}
-              onChange={(event, newValue) => setCurrentTab(newValue)}
-              sx={{
-                position: 'fixed',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 100,
-                background: 'rgba(20, 30, 40, 0.85)',
-                borderTop: `2px solid ${accentColor}`,
-                boxShadow: '0 -2px 16px 0 rgba(31, 38, 135, 0.18)',
-                '.Mui-selected': {
-                  color: accentColor,
-                },
-              }}
-            >
-              <BottomNavigationAction label="Tuning" icon={<DirectionsBike />} />
-              <BottomNavigationAction label="Kontakt" icon={<ContactMail />} />
-            </BottomNavigation>
-          )}
-
-          {currentTab === 0 ? (
-            <Container maxWidth="sm" sx={{ mt: isMobile ? 4 : 8, mb: isMobile ? 2 : 4 }}>
-              <Box
+              <Typography
+                variant={isMobile ? 'h5' : 'h4'}
+                component="h1"
+                align="center"
                 sx={{
-                  borderRadius: { xs: 3, sm: 6 },
-                  boxShadow: 'none',
-                  background: 'rgba(30, 40, 60, 0.82)',
-                  p: { xs: 2, sm: 5 },
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 2,
-                  backdropFilter: 'blur(6px)',
-                  border: 'none',
+                  mb: 2,
+                  fontWeight: 700,
+                  color: accentColor,
+                  letterSpacing: 1,
                 }}
               >
-                <Typography
-                  variant={isMobile ? 'h5' : 'h4'}
-                  component="h1"
-                  align="center"
-                  sx={{
-                    mb: 2,
-                    fontWeight: 700,
-                    color: accentColor,
-                    letterSpacing: 1,
+                Roller Tuning Check
+              </Typography>
+              <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+                <TextField
+                  fullWidth
+                  label="Roller Modell"
+                  variant="filled"
+                  value={model}
+                  onChange={handleInputChange}
+                  margin="normal"
+                  required
+                  InputProps={{
+                    style: {
+                      borderRadius: 14,
+                      background: 'rgba(30,40,60,0.18)',
+                      color: '#fff',
+                      fontWeight: 500,
+                      fontSize: isMobile ? '1.08rem' : '1.15rem',
+                      boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                      border: `2px solid ${accentColor}`,
+                      padding: isMobile ? '16px 18px' : '18px 22px',
+                      minHeight: isMobile ? 54 : 60,
+                      height: isMobile ? 54 : 60,
+                      marginBottom: 8,
+                    },
+                    disableUnderline: true,
                   }}
-                >
-                  Roller Tuning Check
-                </Typography>
-                <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-                  <TextField
-                    fullWidth
-                    label="Roller Modell"
-                    variant="filled"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    margin="normal"
-                    required
-                    InputProps={{
-                      style: {
-                        borderRadius: 12,
-                        background: 'rgba(255,255,255,0.10)',
-                        color: '#fff',
-                        fontWeight: 500,
-                        fontSize: isMobile ? '1rem' : '1.1rem',
-                        boxShadow: 'none',
-                        border: 'none',
-                        padding: isMobile ? '10px 12px' : undefined,
-                      },
-                      disableUnderline: true,
-                    }}
-                    InputLabelProps={{
-                      style: { color: accentColor, fontWeight: 600 },
-                    }}
-                  />
+                  InputLabelProps={{
+                    style: { color: accentColor, fontWeight: 600, fontSize: isMobile ? '1.08rem' : '1.15rem' },
+                  }}
+                />
+                {!result && (
                   <Button
                     type="submit"
                     variant="contained"
                     fullWidth
                     sx={{
                       mt: 2,
-                      py: 1.5,
+                      py: isMobile ? 1.2 : 1.5,
+                      minHeight: isMobile ? 44 : 48,
                       fontSize: isMobile ? '1rem' : '1.1rem',
                       textTransform: 'none',
-                      borderRadius: 8,
+                      borderRadius: 7,
                       fontWeight: 700,
                       background: accentColor,
-                      boxShadow: '0 4px 24px 0 rgba(0,180,200,0.10)',
+                      boxShadow: '0 2px 10px 0 rgba(0,180,200,0.10)',
                       '&:hover': {
                         background: 'rgba(0, 180, 200, 1)',
-                        boxShadow: '0 8px 32px 0 rgba(0,180,200,0.18)',
+                        boxShadow: '0 4px 16px 0 rgba(0,180,200,0.18)',
                       },
                     }}
                   >
                     Tuning-Möglichkeit prüfen
                   </Button>
-                </form>
-                {error && (
-                  <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
-                    {error}
-                  </Alert>
                 )}
-                {result && (
-                  <>
-                    <Alert
-                      severity={result.canBeTuned ? 'success' : 'info'}
+              </form>
+              {error && (
+                <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
+                  {error}
+                </Alert>
+              )}
+              {result && (
+                <>
+                  <Alert
+                    iconMapping={{ success: <CheckCircleIcon fontSize="inherit" /> }}
+                    severity="success"
+                    sx={{
+                      mt: 3,
+                      mb: 1.5,
+                      borderRadius: 3,
+                      background: 'rgba(30,40,60,0.38)',
+                      color: '#aef6d6',
+                      fontWeight: 500,
+                      fontSize: isMobile ? '1.08rem' : '1.13rem',
+                      boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                      border: `1.5px solid #1de9b6`,
+                    }}
+                  >
+                    {`Das Modell "${model}" kann getunt werden! Kontaktiere mich direkt über Instagram für dein individuelles Angebot.`}
+                  </Alert>
+                  {result.showInstagram && (
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      fullWidth
+                      href="https://www.instagram.com/64engineering/"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       sx={{
                         mt: 2,
-                        width: '100%',
-                        fontWeight: 600,
+                        py: 1.3,
+                        fontWeight: 700,
                         fontSize: isMobile ? '1rem' : '1.1rem',
-                        borderRadius: 2,
-                        background: result.canBeTuned
-                          ? 'rgba(0, 180, 200, 0.15)'
-                          : 'rgba(255,255,255,0.10)',
-                        color: result.canBeTuned ? accentColor : '#fff',
+                        background: 'linear-gradient(90deg, #405DE6 0%, #5851DB 40%, #833AB4 70%, #E1306C 100%)',
+                        color: '#fff',
+                        borderRadius: 8,
+                        textTransform: 'none',
+                        boxShadow: '0 2px 12px 0 rgba(64,93,230,0.18)',
+                        '&:hover': {
+                          background: 'linear-gradient(90deg, #405DE6 0%, #E1306C 100%)',
+                        },
                       }}
+                      startIcon={
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style={{ width: 24, height: 24 }} />
+                      }
                     >
-                      {result.message}
-                    </Alert>
-                    {result.showInstagram && (
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        fullWidth
-                        href="https://www.instagram.com/64engineering/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        sx={{
-                          mt: 2,
-                          py: 1.3,
-                          fontWeight: 700,
-                          fontSize: isMobile ? '1rem' : '1.1rem',
-                          background: 'linear-gradient(90deg, #405DE6 0%, #5851DB 40%, #833AB4 70%, #E1306C 100%)',
-                          color: '#fff',
-                          borderRadius: 8,
-                          textTransform: 'none',
-                          boxShadow: '0 2px 12px 0 rgba(64,93,230,0.18)',
-                          '&:hover': {
-                            background: 'linear-gradient(90deg, #405DE6 0%, #E1306C 100%)',
-                          },
-                        }}
-                        startIcon={
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style={{ width: 24, height: 24 }} />
-                        }
-                      >
-                        Jetzt über Instagram kontaktieren
-                      </Button>
-                    )}
-                  </>
-                )}
-              </Box>
-            </Container>
-          ) : (
-            <Contact accentColor={accentColor} />
-          )}
+                      Jetzt über Instagram kontaktieren
+                    </Button>
+                  )}
+                </>
+              )}
+            </Box>
+          </Container>
         </Box>
       </Fade>
     </Box>
