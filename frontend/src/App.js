@@ -45,7 +45,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/check-model', { model });
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE}/api/check-model`, { model });
       setResult(response.data);
       setError('');
     } catch (err) {
