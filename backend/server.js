@@ -51,9 +51,12 @@ const tunableModels = [
 
 // Hilfsfunktion: Vereinheitlicht Modellnamen (klein, keine Leerzeichen/Sonderzeichen)
 function normalizeModel(str) {
-  return str
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '');
+  return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+// Ersetze typische Verwechslungen (L/1 -> i)
+function typoNormalize(str) {
+  return normalizeModel(str).replace(/l/g, 'i').replace(/1/g, 'i');
 }
 
 // Hilfsfunktion: Alle Kombinationen der Tokens erzeugen
@@ -68,28 +71,61 @@ function getAllCombinations(tokens) {
   return results;
 }
 
+// Levenshtein-Distanz für Fuzzy-Suche
+function levenshtein(a, b) {
+  const matrix = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
+  for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+    }
+  }
+  return matrix[a.length][b.length];
+}
+
+function getBestSuggestion(input) {
+  let minDist = Infinity;
+  let best = null;
+  for (const model of tunableModels) {
+    const dist = levenshtein(input, model);
+    if (dist < minDist) {
+      minDist = dist;
+      best = model;
+    }
+  }
+  // Vorschlag auch bei Distanz <= 4
+  if (minDist > 0 && minDist <= 4) return best;
+  return null;
+}
+
 app.post('/api/check-model', (req, res) => {
   const { model } = req.body;
   if (!model) {
     return res.status(400).json({ error: 'Bitte geben Sie ein Modell ein' });
   }
   const normalized = normalizeModel(model);
-  const tokens = model.split(/\s+/).map(normalizeModel).filter(Boolean);
+  const tokens = model.trim().split(/\s+/).map(normalizeModel).filter(Boolean);
   const combinations = getAllCombinations(tokens);
-  // Prüfe: 1. Gesamte Eingabe, 2. Einzelne Tokens, 3. Alle Kombinationen
-  const canBeTuned =
+
+  let canBeTuned =
     tunableModels.includes(normalized) ||
     tokens.some(token => tunableModels.includes(token)) ||
     combinations.some(comb => tunableModels.includes(comb));
-  res.json({
+
+  return res.json({
     canBeTuned,
     showInstagram: canBeTuned,
     message: canBeTuned
-      ? `Das Modell "${model}" kann getunt werden! Kontaktiere uns direkt über Instagram für dein individuelles Angebot.`
-      : `Leider können wir das Modell "${model}" aktuell nicht tunen.`
+      ? `✅ Dein Modell "${model}" kann getunt werden! Schreib uns auf Instagram 📲`
+      : `❌ Leider können wir das Modell "${model}" derzeit nicht tunen.`
   });
 });
 
 app.listen(port, () => {
-  console.log(`Server läuft auf Port ${port}`);
+  console.log(`✅ Backend läuft unter http://localhost:${port}`);
 }); 
