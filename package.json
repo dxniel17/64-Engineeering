@@ -1,0 +1,12 @@
+{
+  "name": "roller-tuning-berater",
+  "version": "1.0.0",
+  "description": "Eine Webanwendung zur Beratung von Roller-Tuning-Möglichkeiten",
+  "scripts": {
+    "start": "concurrently \"cd frontend && npm start\" \"cd backend && npm start\"",
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
